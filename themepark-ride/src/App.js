@@ -8,11 +8,21 @@ class App extends Component {
   constructor(props) {
     super(props);
 
-    const socket = openSocket("http://localhost:3000");
-    socket.on("rfid", function(msg) {
-      let decoder = new TextDecoder();
-      let decodedMessageText = decoder.decode(msg);
-      console.log(decodedMessageText);
+    let that = this;
+    this.state = { rfids: [] };
+    const socketObservable = Rx.Observable.create(observer => {
+      const socket = openSocket("http://localhost:3000");
+      socket.on("rfid", function(msg) {
+        let decoder = new TextDecoder();
+        let decodedMessageText = decoder.decode(msg);
+        observer.next(decodedMessageText);
+      });
+    });
+
+    socketObservable.subscribe(val => {
+      let rfids = that.state.rfids;
+      rfids.push(val);
+      that.setState({ rfids: rfids });
     });
   }
 
@@ -26,6 +36,12 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
+
+        <ul>
+          {this.state.rfids.map((rfid, i) => {
+            return <li key={i}>{rfid}</li>;
+          })}
+        </ul>
       </div>
     );
   }
