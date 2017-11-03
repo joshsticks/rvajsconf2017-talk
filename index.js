@@ -7,16 +7,8 @@ let stdin = process.stdin;
 stdin.resume();
 
 stdin.on("data", key => {
-  if (key == "\u0003") {
-    process.exit();
-  }
-
   process.stdout.write(key);
   io.emit("rfid", key);
-});
-
-app.get("/", function(req, res) {
-  res.sendFile(__dirname + "/index.html");
 });
 
 io.on("connection", function(socket) {
@@ -26,6 +18,10 @@ io.on("connection", function(socket) {
   });
 });
 
-http.listen(3000, function() {
-  console.log("listening on *:3000");
+app.get("/", function(req, res) {
+  res.sendFile(__dirname + "/index.html");
+});
+
+http.listen(3001, function() {
+  console.log("listening on *:3001");
 });
